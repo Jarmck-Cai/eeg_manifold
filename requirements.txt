@@ -1,0 +1,56 @@
+# SEEG Manifold & Symmetry Analysis Toolkit
+# Python Dependencies
+
+# ============ Core Scientific Computing ============
+numpy>=1.21.0
+scipy>=1.7.0
+pandas>=1.3.0
+
+# ============ Neural Data Processing ============
+mne>=1.0.0                    # EEG/MEG/iEEG processing
+neo>=0.11.0                   # Electrophysiology data IO
+pyedflib>=0.1.30              # EDF file handling
+
+# ============ Machine Learning & Dimensionality Reduction ============
+scikit-learn>=1.0.0           # PCA, t-SNE, Isomap, clustering
+umap-learn>=0.5.0             # UMAP
+phate>=1.0.0                  # PHATE (diffusion-based)
+
+# ============ Topological Data Analysis ============
+ripser>=0.6.0                 # Fast persistent homology
+persim>=0.3.0                 # Persistence diagram tools
+giotto-tda>=0.6.0             # ML-friendly TDA
+
+# ============ Dynamical Systems ============
+pysindy>=1.7.0                # Sparse identification of dynamics
+pydmd>=0.4.0                  # Dynamic mode decomposition
+
+# ============ Geometry & Group Theory ============
+geomstats>=2.5.0              # Manifold and Lie group computations
+
+# ============ Visualization ============
+matplotlib>=3.5.0
+seaborn>=0.11.0
+plotly>=5.0.0                 # Interactive plots
+ipywidgets>=8.0.0             # Jupyter widgets
+
+# ============ Jupyter & Development ============
+jupyter>=1.0.0
+jupyterlab>=3.0.0
+ipython>=8.0.0
+tqdm>=4.62.0                  # Progress bars
+
+# ============ Configuration & Utilities ============
+pyyaml>=6.0
+h5py>=3.0.0                   # HDF5 support for large data
+joblib>=1.1.0                 # Parallel processing
+
+# ============ Optional: Deep Learning ============
+# Uncomment if needed for equivariant networks
+# torch>=1.10.0
+# e3nn>=0.5.0                 # E(3) equivariant networks
+# escnn>=0.1.0                # General equivariant networks
+
+# ============ Testing ============
+pytest>=7.0.0
+pytest-cov>=3.0.0
