@@ -11,21 +11,25 @@ from .loaders import (
     load_seeg_data,
     load_mat_file,
     load_edf_file,
+    load_fif_file,
     SEEGData,
 )
 
 from .converters import (
     mat_to_mne,
+    mat_to_mne_epochs,
     mne_to_array,
     create_mne_raw,
 )
 
 __all__ = [
     'load_seeg_data',
-    'load_mat_file', 
+    'load_mat_file',
     'load_edf_file',
+    'load_fif_file',
     'SEEGData',
     'mat_to_mne',
+    'mat_to_mne_epochs',
     'mne_to_array',
     'create_mne_raw',
 ]

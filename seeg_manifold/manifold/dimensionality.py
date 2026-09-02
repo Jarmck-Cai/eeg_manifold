@@ -42,7 +42,17 @@ def estimate_dimensionality(
     """
     if methods is None:
         methods = ['pca_variance', 'pca_elbow', 'mle']
-    
+
+    # Reject unknown names rather than silently returning nothing: a typo
+    # would otherwise produce an empty result with no indication why.
+    valid_methods = {'pca_variance', 'pca_elbow', 'mle'}
+    unknown = [m for m in methods if m not in valid_methods]
+    if unknown:
+        raise ValueError(
+            f"Unknown dimensionality estimation method(s): {unknown}. "
+            f"Valid options are: {sorted(valid_methods)}"
+        )
+
     results = {}
     
     # Ensure data is 2D (n_samples, n_features)
@@ -158,17 +168,32 @@ def intrinsic_dim_mle(data: np.ndarray, k: int = 10) -> float:
     return np.mean(dim_estimates)
 
 
-def intrinsic_dim_correlation(data: np.ndarray, n_points: int = 1000) -> float:
+def intrinsic_dim_correlation(
+    data: np.ndarray,
+    n_points: int = 1000,
+    random_state: Optional[int] = None
+) -> float:
     """
     Estimate intrinsic dimensionality using correlation dimension.
-    
+
     Uses the Grassberger-Procaccia algorithm.
+
+    Parameters
+    ----------
+    data : np.ndarray
+        Data matrix (n_samples, n_features)
+    n_points : int
+        Subsample size used to bound the pairwise distance computation.
+    random_state : int, optional
+        Seed for the subsampling. Without it, repeated calls on the same
+        data return slightly different estimates.
     """
     n_samples = data.shape[0]
-    
+
     # Subsample if too many points
     if n_samples > n_points:
-        idx = np.random.choice(n_samples, n_points, replace=False)
+        rng = np.random.default_rng(random_state)
+        idx = rng.choice(n_samples, n_points, replace=False)
         data = data[idx]
         n_samples = n_points
     

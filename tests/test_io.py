@@ -164,6 +164,21 @@ class TestLoadMatFile:
         with pytest.raises(FileNotFoundError):
             load_seeg_data("nonexistent_file.mat")
     
+    def test_fif_gz_is_recognised(self, tmp_path):
+        """Regression: Path.suffix returns '.gz' for 'x.fif.gz'.
+
+        The dispatcher matched on suffix alone, so compressed FIF files
+        were rejected as an unsupported format. Reaching the MNE reader
+        (which then fails on the bogus contents) is the pass condition.
+        """
+        path = tmp_path / "recording.fif.gz"
+        path.write_bytes(b"not a real fif file")
+
+        with pytest.raises(Exception) as excinfo:
+            load_seeg_data(path)
+
+        assert "Unsupported file format" not in str(excinfo.value)
+
     def test_unsupported_format(self, tmp_path):
         """Test error on unsupported file format."""
         # Create a dummy file

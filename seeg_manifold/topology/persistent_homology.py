@@ -257,31 +257,37 @@ def bottleneck_distance(
 def wasserstein_distance(
     diagram1: np.ndarray,
     diagram2: np.ndarray,
-    p: int = 2
-) -> float:
+    matching: bool = False
+):
     """
     Compute Wasserstein distance between two persistence diagrams.
-    
+
     Parameters
     ----------
     diagram1 : np.ndarray
         First persistence diagram
     diagram2 : np.ndarray
         Second persistence diagram
-    p : int
-        Wasserstein order (default: 2)
-        
+    matching : bool
+        If True, also return the optimal matching between the diagrams.
+
     Returns
     -------
     distance : float
-        Wasserstein distance
+        Wasserstein distance, or ``(distance, matching)`` when
+        ``matching=True``.
+
+    Notes
+    -----
+    ``persim.wasserstein`` computes the 1-Wasserstein (optimal transport)
+    distance and exposes no order parameter, so none is offered here.
     """
     try:
         import persim
     except ImportError:
         raise ImportError("Persim required. Install with: pip install persim")
-    
-    return persim.wasserstein(diagram1, diagram2, p=p)
+
+    return persim.wasserstein(diagram1, diagram2, matching=matching)
 
 
 def persistence_image(

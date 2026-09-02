@@ -258,6 +258,14 @@ class TestEpoching:
         assert times[0] < 0
         assert times[-1] > 0
     
+    def test_event_locked_without_tmax_raises_clearly(self):
+        """Regression: this used to fail with a TypeError on None * float."""
+        data = np.random.randn(4, 5000)
+
+        with pytest.raises(ValueError, match="tmax"):
+            create_epochs(data, 500.0, epoch_length=2.0,
+                          events=np.array([1000, 2000]), tmin=-0.2)
+
     def test_epoch_data_with_rejection(self):
         """Test epoching with artifact rejection."""
         data = np.random.randn(4, 10000) * 0.1

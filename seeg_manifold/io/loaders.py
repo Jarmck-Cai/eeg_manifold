@@ -136,12 +136,15 @@ def load_seeg_data(
         raise FileNotFoundError(f"File not found: {filepath}")
     
     suffix = filepath.suffix.lower()
-    
+    # Match on the full name for multi-part extensions: Path.suffix returns
+    # only '.gz' for 'recording.fif.gz'.
+    name = filepath.name.lower()
+
     if suffix == '.mat':
         return load_mat_file(filepath, sfreq=sfreq, **kwargs)
     elif suffix == '.edf':
         return load_edf_file(filepath, **kwargs)
-    elif suffix in ['.fif', '.fif.gz']:
+    elif name.endswith('.fif') or name.endswith('.fif.gz'):
         return load_fif_file(filepath, **kwargs)
     else:
         raise ValueError(f"Unsupported file format: {suffix}")

@@ -1,5 +1,8 @@
 # SEEG Manifold & Symmetry Analysis Toolkit
 
+[![tests](https://github.com/Jarmck-Cai/eeg_manifold/actions/workflows/tests.yml/badge.svg)](https://github.com/Jarmck-Cai/eeg_manifold/actions/workflows/tests.yml)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 A Python toolkit for finding low-dimensional structure in intracranial EEG
 (SEEG/iEEG) recordings, and for testing whether that structure carries
 geometric symmetry — with permutation tests rather than eyeballed plots.
@@ -196,6 +199,7 @@ seeg_manifold/
 config/              # default parameters (preprocessing section is loaded)
 notebooks/           # 00_quick_start.ipynb, committed with outputs
 tests/               # pytest suite
+.github/workflows/   # CI: runs the suite on Python 3.10 and 3.12
 ```
 
 ## Data
@@ -221,12 +225,16 @@ recordings; nothing in this repository handles that for you.
 
 ## Status and limitations
 
-Working and tested — `pytest tests/` gives 90 passed, 1 skipped (the PHATE
-test, which is skipped unless `phate` is installed):
+Working and tested — `pytest tests/` runs 131 tests, all passing on Python
+3.10 and 3.12 in CI. Tests covering optional dependencies (PHATE, and the
+`ripser`/`persim` topology backend) skip automatically when those are not
+installed; `pip install -e ".[full,dev]"` runs the whole suite:
 
 - Data IO, preprocessing pipeline, epoching
 - Dimensionality estimation and all reduction methods
 - Spectral and connectivity features
+- Representational dissimilarity matrices and model comparison
+- Persistent homology, Betti curves, landscapes and diagram distances
 - Symmetry detection, including the permutation tests
 
 Known limitations:
@@ -234,10 +242,8 @@ Known limitations:
 - **Synthetic validation only.** Every number in this README comes from
   synthetic data. The toolkit has not been validated against a public iEEG
   benchmark, and no claim is made about real recordings.
-- **Topology and RSA modules are untested.** They are implemented and
-  importable but have no test coverage; `topology` additionally requires
-  `ripser`/`persim`, and the `wasserstein_distance` wrapper in particular has
-  not been exercised against the current `persim` API.
+- **The visualization module has no test coverage.** Its functions are
+  exercised by the quick-start notebook but not asserted on.
 - **PLV on continuous data** is computed across time within a single segment
   rather than across trials, which is a biased estimator. Prefer epoched input.
 - **Group-theoretic analysis is not implemented.** Only discrete rotational and

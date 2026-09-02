@@ -59,8 +59,13 @@ def create_epochs(
         raise ValueError(f"Expected 2D array, got {data.ndim}D")
     
     n_channels, n_timepoints = data.shape
-    
+
     if events is not None:
+        if tmax is None:
+            raise ValueError(
+                "tmax is required for event-locked epoching; it sets how far "
+                "each epoch extends after the event (e.g. tmin=-0.2, tmax=0.8)."
+            )
         return _epoch_event_locked(data, sfreq, events, tmin, tmax)
     else:
         return _epoch_fixed_length(data, sfreq, epoch_length, overlap)

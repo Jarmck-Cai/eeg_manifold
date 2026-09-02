@@ -153,6 +153,20 @@ class TestDimensionalityEstimation:
         estimates = [float(results[k]) for k in ('pca_variance', 'pca_elbow', 'mle')]
         assert results['consensus'] == int(np.median(estimates))
     
+    def test_unknown_method_raises(self):
+        """Regression: a typo used to return an empty dict silently."""
+        with pytest.raises(ValueError, match="Unknown dimensionality"):
+            estimate_dimensionality(np.random.randn(50, 5),
+                                    methods=['pca_varaince'], verbose=False)
+
+    def test_correlation_dim_is_reproducible(self):
+        """Regression: the internal subsample was unseeded."""
+        data = np.random.default_rng(0).normal(size=(1500, 8))
+
+        values = [intrinsic_dim_correlation(data, random_state=0) for _ in range(3)]
+
+        assert len(set(values)) == 1
+
     def test_estimate_dimensionality_3d_input(self):
         """Test that 3D input is handled correctly."""
         np.random.seed(42)

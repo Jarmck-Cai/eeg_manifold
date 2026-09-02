@@ -256,15 +256,31 @@ def rdm_mds(
     embedding : np.ndarray
         MDS embedding (n_conditions, n_components)
     """
+    import inspect
+
     from sklearn.manifold import MDS
-    
+
+    # scikit-learn 1.9 renamed MDS's ``dissimilarity`` to ``metric`` (and
+    # the old boolean ``metric`` to ``metric_mds``); ``dissimilarity`` is
+    # removed in 1.10. Pick the spelling this version accepts so the
+    # function works across the supported range.
+    params = inspect.signature(MDS.__init__).parameters
+    kwargs = {}
+    if 'metric_mds' in params:
+        kwargs['metric'] = 'precomputed'
+    else:
+        kwargs['dissimilarity'] = 'precomputed'
+    if 'init' in params:
+        # The default is changing; pin it so results stay comparable.
+        kwargs['init'] = 'random'
+
     mds = MDS(
         n_components=n_components,
-        dissimilarity='precomputed',
         random_state=42,
-        normalized_stress='auto'
+        normalized_stress='auto',
+        **kwargs
     )
-    
+
     embedding = mds.fit_transform(rdm)
     return embedding
 
