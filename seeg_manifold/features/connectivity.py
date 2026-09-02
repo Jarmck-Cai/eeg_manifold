@@ -141,7 +141,7 @@ def compute_phase_locking_value(
     from scipy.signal import hilbert
     
     # Bandpass filter to the frequency band
-    from src.preprocessing.filters import bandpass_filter
+    from ..preprocessing.filters import bandpass_filter
     
     if data.ndim == 2:
         data = data[np.newaxis, :, :]  # Add epoch dimension

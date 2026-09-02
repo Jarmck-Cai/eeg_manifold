@@ -7,7 +7,7 @@ import numpy as np
 import sys
 from pathlib import Path
 
-# Add src to path for imports
+# Add project root to path for imports
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
@@ -80,7 +80,7 @@ def low_dim_data():
 @pytest.fixture
 def seeg_data_object():
     """Create a SEEGData object for testing."""
-    from src.io.loaders import SEEGData
+    from seeg_manifold.io.loaders import SEEGData
     
     np.random.seed(42)
     data = np.random.randn(16, 2000)

@@ -9,6 +9,11 @@ from typing import Optional, Dict, List, Tuple, Union
 from scipy import signal
 
 
+# ``np.trapz`` was removed in NumPy 2.0 and renamed to ``np.trapezoid``.
+# Bind the available name once so band power works on both 1.x and 2.x.
+_trapezoid = getattr(np, "trapezoid", None) or np.trapz
+
+
 # Default frequency bands
 DEFAULT_BANDS = {
     'delta': (1, 4),
@@ -160,18 +165,18 @@ def compute_band_power(
         idx = np.logical_and(freqs >= low, freqs <= high)
         
         if psd.ndim == 1:
-            power = np.trapz(psd[idx], freqs[idx])
+            power = _trapezoid(psd[idx], freqs[idx])
         else:
-            power = np.trapz(psd[:, idx], freqs[idx], axis=-1)
+            power = _trapezoid(psd[:, idx], freqs[idx], axis=-1)
         
         band_power[band_name] = power
     
     if normalize:
         # Compute total power
         if psd.ndim == 1:
-            total_power = np.trapz(psd, freqs)
+            total_power = _trapezoid(psd, freqs)
         else:
-            total_power = np.trapz(psd, freqs, axis=-1)
+            total_power = _trapezoid(psd, freqs, axis=-1)
         
         for band_name in band_power:
             band_power[band_name] = band_power[band_name] / total_power

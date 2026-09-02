@@ -1,4 +1,9 @@
 # SEEG Manifold Analysis - Default Configuration
+#
+# Status: only the `preprocessing` section is currently loaded by code,
+# via PreprocessingConfig.from_yaml(). The remaining sections document the
+# defaults that the corresponding functions use internally, but they are
+# not read automatically -- pass those values as keyword arguments.
 
 # ============ Data Settings ============
 data:
@@ -55,7 +60,8 @@ features:
 manifold:
   # Dimensionality estimation
   dim_estimation:
-    methods: ['pca_variance', 'mle', 'correlation_dim']
+    # Accepted by estimate_dimensionality(): pca_variance, pca_elbow, mle
+    methods: ['pca_variance', 'pca_elbow', 'mle']
     variance_threshold: 0.95  # For PCA-based estimation
     
   # Reduction methods

@@ -1,5 +1,5 @@
 """
-Unit tests for src.preprocessing module
+Unit tests for seeg_manifold.preprocessing module
 
 Tests for:
 - Filtering functions
@@ -12,17 +12,17 @@ import pytest
 import numpy as np
 from scipy import signal
 
-from src.preprocessing.filters import (
+from seeg_manifold.preprocessing.filters import (
     bandpass_filter, highpass_filter, lowpass_filter,
     notch_filter, filter_data
 )
-from src.preprocessing.artifact_removal import (
+from seeg_manifold.preprocessing.artifact_removal import (
     detect_artifacts, remove_artifacts_threshold, remove_artifacts_ica
 )
-from src.preprocessing.epoching import (
+from seeg_manifold.preprocessing.epoching import (
     create_epochs, epoch_data, concatenate_epochs
 )
-from src.preprocessing.pipeline import (
+from seeg_manifold.preprocessing.pipeline import (
     preprocess_pipeline, PreprocessingConfig
 )
 
@@ -271,7 +271,44 @@ class TestEpoching:
         
         assert info['n_epochs_rejected'] > 0
         assert info['n_epochs_final'] < info['n_epochs_original']
-    
+
+    def test_clean_data_survives_rejection(self):
+        """Regression: rejection must not discard every epoch.
+
+        The threshold was once ``reject_threshold * std(epoch_max)`` with
+        no mean offset, which compares an absolute amplitude against a
+        spread and rejected all epochs whenever their peak amplitudes
+        were tightly clustered -- the normal case for clean data.
+        """
+        rng = np.random.default_rng(0)
+        sfreq = 500.0
+        t = np.arange(10000) / sfreq
+        data = np.array([np.sin(2 * np.pi * 10 * t) for _ in range(4)])
+        data += 0.05 * rng.standard_normal(data.shape)
+
+        epochs, _, info = epoch_data(
+            data, sfreq=sfreq, epoch_length=2.0,
+            overlap=0.5, reject_threshold=5.0
+        )
+
+        assert info['n_epochs_final'] > 0, "all epochs rejected on clean data"
+        assert info['n_epochs_rejected'] == 0
+        assert epochs.shape[0] == info['n_epochs_original']
+
+    def test_rejection_still_removes_outlier_epochs(self):
+        """A single large artifact must still be rejected."""
+        rng = np.random.default_rng(0)
+        data = 0.1 * rng.standard_normal((4, 10000))
+        data[:, 4000:4100] = 50.0
+
+        _, _, info = epoch_data(
+            data, sfreq=1000.0, epoch_length=1.0,
+            overlap=0.0, reject_threshold=3.0
+        )
+
+        assert info['n_epochs_rejected'] > 0
+        assert info['n_epochs_final'] > 0
+
     def test_concatenate_epochs(self):
         """Test epoch concatenation."""
         epochs = np.random.randn(5, 4, 100)

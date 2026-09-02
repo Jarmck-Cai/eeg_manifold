@@ -75,10 +75,14 @@ def estimate_dimensionality(
         if verbose:
             print(f"  MLE: {dim:.1f} dimensions")
     
-    # Compute consensus estimate
-    dim_estimates = [v for k, v in results.items() 
-                    if k in ['pca_variance', 'pca_elbow', 'mle'] 
-                    and isinstance(v, (int, float))]
+    # Compute consensus estimate.
+    # NumPy scalars must be handled explicitly: ``np.float64`` subclasses
+    # Python ``float`` but ``np.int64`` does not subclass ``int``, so an
+    # ``isinstance(v, (int, float))`` filter would silently drop the
+    # integer-valued PCA estimates and leave the median equal to the MLE.
+    dim_estimates = [float(v) for k, v in results.items()
+                     if k in ['pca_variance', 'pca_elbow', 'mle']
+                     and np.isscalar(v) and not isinstance(v, (str, bool))]
     
     if dim_estimates:
         results['consensus'] = int(np.median(dim_estimates))

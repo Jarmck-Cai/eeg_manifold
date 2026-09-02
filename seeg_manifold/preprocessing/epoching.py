@@ -196,8 +196,31 @@ def epoch_data(
     if reject_threshold is not None:
         # Calculate epoch-wise max amplitude
         epoch_max = np.max(np.abs(epochs), axis=(1, 2))
-        threshold = reject_threshold * np.std(epoch_max)
-        good_epochs = epoch_max < threshold
+        # Reject epochs whose peak amplitude is an outlier relative to the
+        # rest of the recording, using a median/MAD criterion.
+        #
+        # Two failure modes motivate this form. A bare
+        # ``reject_threshold * std`` (no location term) compares an
+        # absolute amplitude against a spread and rejects *every* epoch
+        # whenever the peak amplitudes are tightly clustered, which is
+        # the normal case for clean data. Using mean and std instead
+        # fixes that but breaks the opposite case: a single large
+        # artifact inflates both statistics enough to mask itself.
+        # Median and MAD are robust to both.
+        center = np.median(epoch_max)
+        mad = np.median(np.abs(epoch_max - center))
+        # 1.4826 rescales the MAD to a standard-deviation equivalent for
+        # normally distributed data, so reject_threshold keeps its
+        # "number of sigmas" meaning.
+        scale = 1.4826 * mad
+        if scale <= 0:
+            # Degenerate spread (e.g. identical epochs): fall back to the
+            # standard deviation, and keep everything if that is zero too.
+            scale = np.std(epoch_max)
+        if scale <= 0:
+            good_epochs = np.ones(len(epoch_max), dtype=bool)
+        else:
+            good_epochs = epoch_max < center + reject_threshold * scale
         
         epochs = epochs[good_epochs]
         info['n_epochs_rejected'] = np.sum(~good_epochs)

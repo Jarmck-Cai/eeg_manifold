@@ -1,5 +1,5 @@
 """
-Unit tests for src.manifold module
+Unit tests for seeg_manifold.manifold module
 
 Tests for:
 - Dimensionality estimation
@@ -11,14 +11,14 @@ import pytest
 import numpy as np
 from scipy.spatial.distance import pdist
 
-from src.manifold.dimensionality import (
+from seeg_manifold.manifold.dimensionality import (
     estimate_dimensionality, pca_explained_variance, pca_elbow,
     intrinsic_dim_mle, intrinsic_dim_correlation
 )
-from src.manifold.reduction import (
+from seeg_manifold.manifold.reduction import (
     reduce_dimensions, fit_pca, fit_tsne, fit_isomap
 )
-from src.manifold.comparison import (
+from seeg_manifold.manifold.comparison import (
     compare_reductions, compute_preservation_metrics,
     compute_neighborhood_preservation, ReductionResult
 )
@@ -114,6 +114,44 @@ class TestDimensionalityEstimation:
         assert 'pca_elbow' in results
         assert 'mle' in results
         assert 'consensus' in results
+
+    def test_consensus_uses_all_estimates(self):
+        """Regression: consensus must include the PCA estimates.
+
+        The estimates were filtered with ``isinstance(v, (int, float))``.
+        ``np.float64`` subclasses ``float`` but ``np.int64`` does not
+        subclass ``int``, so both integer-valued PCA estimates were
+        dropped and the "median" was always just the MLE value.
+        """
+        np.random.seed(42)
+        latent = np.random.randn(200, 4)
+        data = latent @ np.random.randn(4, 30) + np.random.randn(200, 30) * 0.1
+
+        results = estimate_dimensionality(
+            data, methods=['pca_variance', 'pca_elbow', 'mle'], verbose=False
+        )
+
+        expected = int(np.median([
+            float(results['pca_variance']),
+            float(results['pca_elbow']),
+            float(results['mle']),
+        ]))
+        assert results['consensus'] == expected
+
+    def test_consensus_is_not_just_mle(self):
+        """The consensus must differ from MLE when the estimates disagree."""
+        np.random.seed(0)
+        # 200 samples in 60 dimensions: MLE is driven far from the PCA
+        # estimates, so a median over all three cannot equal the MLE.
+        latent = np.random.randn(200, 3)
+        data = latent @ np.random.randn(3, 60) + np.random.randn(200, 60) * 0.5
+
+        results = estimate_dimensionality(
+            data, methods=['pca_variance', 'pca_elbow', 'mle'], verbose=False
+        )
+
+        estimates = [float(results[k]) for k in ('pca_variance', 'pca_elbow', 'mle')]
+        assert results['consensus'] == int(np.median(estimates))
     
     def test_estimate_dimensionality_3d_input(self):
         """Test that 3D input is handled correctly."""
@@ -321,7 +359,7 @@ class TestUMAP:
     
     def test_fit_umap_shape(self, umap_available):
         """Test UMAP output shape."""
-        from src.manifold.reduction import fit_umap
+        from seeg_manifold.manifold.reduction import fit_umap
         
         np.random.seed(42)
         data = np.random.randn(100, 30)
@@ -352,7 +390,7 @@ class TestPHATE:
     
     def test_fit_phate_shape(self, phate_available):
         """Test PHATE output shape."""
-        from src.manifold.reduction import fit_phate
+        from seeg_manifold.manifold.reduction import fit_phate
         
         np.random.seed(42)
         data = np.random.randn(100, 30)

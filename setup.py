@@ -4,15 +4,17 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
-    name="seeg-manifold-analysis",
+    name="seeg-manifold",
     version="0.1.0",
-    author="Your Name",
-    author_email="your.email@example.com",
-    description="A toolkit for manifold and symmetry analysis of SEEG data",
+    author="Jarmck Cai",
+    author_email="caizx392@gmail.com",
+    description=(
+        "Manifold, topology and symmetry analysis of SEEG/iEEG recordings"
+    ),
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/seeg_manifold_analysis",
-    packages=find_packages(),
+    url="https://github.com/Jarmck-Cai/eeg_manifold",
+    packages=find_packages(include=["seeg_manifold", "seeg_manifold.*"]),
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Science/Research",
@@ -22,33 +24,30 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
     ],
     python_requires=">=3.9",
     install_requires=[
-        "numpy>=1.21.0",
-        "scipy>=1.7.0",
-        "pandas>=1.3.0",
-        "mne>=1.0.0",
-        "scikit-learn>=1.0.0",
-        "umap-learn>=0.5.0",
-        "matplotlib>=3.5.0",
+        "numpy>=1.24,<3.0",
+        "scipy>=1.10",
+        "scikit-learn>=1.3",
+        # mne < 1.6 calls np.cast, which NumPy 2.0 removed.
+        "mne>=1.6",
+        "h5py>=3.8",
         "pyyaml>=6.0",
+        "matplotlib>=3.7",
     ],
     extras_require={
         "full": [
-            "phate>=1.0.0",
-            "ripser>=0.6.0",
-            "persim>=0.3.0",
-            "giotto-tda>=0.6.0",
-            "pysindy>=1.7.0",
-            "geomstats>=2.5.0",
-            "plotly>=5.0.0",
+            "umap-learn>=0.5.4",
+            "phate>=1.0",
+            "ripser>=0.6",
+            "persim>=0.3",
+            "plotly>=5.0",
         ],
         "dev": [
-            "pytest>=7.0.0",
-            "pytest-cov>=3.0.0",
-            "black",
-            "flake8",
+            "pytest>=7.0",
+            "pytest-cov>=3.0",
         ],
     },
 )

@@ -1,5 +1,5 @@
 """
-Unit tests for src.io module
+Unit tests for seeg_manifold.io module
 
 Tests for:
 - SEEGData dataclass
@@ -12,7 +12,7 @@ import numpy as np
 import tempfile
 from pathlib import Path
 
-from src.io.loaders import SEEGData, load_seeg_data, load_mat_file
+from seeg_manifold.io.loaders import SEEGData, load_seeg_data, load_mat_file
 
 
 class TestSEEGData:
@@ -180,7 +180,7 @@ class TestConverters:
     def test_create_mne_raw(self):
         """Test creating MNE Raw from array."""
         pytest.importorskip("mne")
-        from src.io.converters import create_mne_raw
+        from seeg_manifold.io.converters import create_mne_raw
         
         data = np.random.randn(8, 1000)
         sfreq = 500.0
@@ -194,7 +194,7 @@ class TestConverters:
     def test_mat_to_mne(self):
         """Test converting SEEGData to MNE Raw."""
         pytest.importorskip("mne")
-        from src.io.converters import mat_to_mne
+        from seeg_manifold.io.converters import mat_to_mne
         
         data = np.random.randn(4, 500)
         seeg = SEEGData(data=data, sfreq=250.0, ch_names=['A1', 'A2', 'B1', 'B2'])
@@ -208,7 +208,7 @@ class TestConverters:
         """Test converting MNE Raw back to SEEGData."""
         pytest.importorskip("mne")
         import mne
-        from src.io.converters import mne_to_array
+        from seeg_manifold.io.converters import mne_to_array
         
         # Create MNE Raw
         data = np.random.randn(4, 500)
